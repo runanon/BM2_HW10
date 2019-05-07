@@ -1,0 +1,126 @@
+---
+title: "P8131 HOMEWORK 10"
+author: \sl xc2474 Xinlei Chen
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(survival)
+library(survminer)
+library(KMsurv)
+```
+
+## Problem 1
+
+Suppose we have the following data: \
+Group 1: 4, 12+, 15, 21+, 23\
+Group 2: 2, 6+, 8+, 10, 19\
+Test $H_{0}$: $h_{1}(t)=h_{2}(t)$ for all t, $H_{1}: h_{1}(t) \neq h_{2}(t)$ for some t using the log-rank test.
+\
+```{r, fig.width=7, fig.height=4}
+data1 = tibble(
+    time = c(4, 12, 15, 21, 23, 2, 6, 8, 10, 19),
+    delta = c(1, 0, 1, 0, 1, 1, 0, 0, 1, 1),
+    group = c(1, 1, 1, 1, 1, 2, 2, 2, 2, 2)
+  )
+
+survdiff(Surv(time,delta)~group, data=data1)
+ggsurvplot(survfit(Surv(time, delta) ~ group, data = data1), conf.int=TRUE)
+```
+
+The test result shows that the p-value is 0.3 which is greater than 0.05, so we fail to reject the null hypothesis and state that the survival curves of 2 groups are not significantly different. 
+
+
+## Problem 2
+
+Consider the kidtran dataset in the KMsurv package where the death times of kidney transplant patients are reported. The patients can be classified by race (1=white and 2=black) and gender (1=male and 2=female) into one of four groups. Compare the survival curves for different races in each sex group.
+
+```{r}
+data(kidtran)
+```
+
+\newpage
+
+***(1) For male group:***
+
+```{r, fig.width=6, fig.height=3}
+# male
+# plot
+ggsurvplot(survfit(Surv(time, delta) ~ race,
+                   data = subset(kidtran, gender == 1)),
+           conf.int=FALSE)
+# log-rank test
+survdiff(Surv(time, delta)~ gender + race, data = kidtran, subset = (gender == 1))
+```
+
+**Comment:**\
+For male group, the chi-squared statistic is 0.1 and the p-value is 0.8 which is greater than 0.05, so we fail to reject the null and state that the survival curves of different races is not significantly different in male group. 
+
+$$
+$$
+
+***(2) For female group:***
+
+```{r, fig.width=6, fig.height=3}
+# female
+# plot
+ggsurvplot(survfit(Surv(time, delta) ~ race,
+                   data = subset(kidtran, gender == 2)),
+           conf.int=FALSE)
+```
+\newpage
+```{r}
+# log-rank test
+survdiff(Surv(time, delta)~ gender + race, data = kidtran, subset = (gender == 2))
+```
+
+**Comment:**\
+For female group, the chi-squared statistics is 4.8 and p-value is 0.03 which is smaller than 0.05, so we reject the null and state that the survival curves for different races is significantly different in female group.
+
+
+## Problem 3
+
+Consider the larynx data in the KMsurv package. Let\
+Z1 = 1 if the patient is in stage II, 0 otherwise\
+Z2 = 1 if the patient is in stage III, 0 otherwise\
+Z3 = 1 if the patient is in stage IV, 0 otherwise\
+Z4 = age of the patient (in years):\
+Fit a proportional hazards model using the covariates Z1, Z2, Z3, Z4 and the interaction term Z1 * Z4. Explain your results. What is the relative risk of dying for a stage II parient of age 50 as compared to a stage I patient of the same age?
+
+```{r}
+data(larynx)
+data2 = larynx %>%
+  mutate(z1 = if_else(stage == 2, 1, 0),
+         z2 = if_else(stage == 3, 1, 0),
+         z3 = if_else(stage == 4, 1, 0)) %>%
+  rename(z4 = age)
+
+fit = coxph(Surv(time, delta)~z1 + z2 + z3 + z4 + z1 * z4, data = data2, ties = "breslow")
+summary(fit)
+```
+
+The proportional hazards model is:
+$$
+h_i(t)=h_0(t) exp\{-7.38Z_1+0.62Z_2+1.75Z_3+0.006Z_4+0.11Z_1 \times Z_4 \}
+$$
+**Interpretations:**
+
+\begin{enumerate}
+\item[1] The hazard ratio for subjects of age k in Stage II versus subjects in Stage I is $e^{-7.38+0.11\times k}$ holing age asconstant.
+\item[2] The hazard ratio for subjects in Stage III versus subjects in Stage I is 1.86, keeping age at diagnosis constant.
+\item[3] The hazard ratio for subjects in Stage IV versus subjects in Stage I is 5.77, keeping age at diagnosis constant.
+\item[3] When the patients are not in stage II, the hazard ratio for one-year increase in age at diagnosis is 1.0059908, for patients in the same stage; if the patients are in stage II, the hazard ratio for one-year increase in age at diagnosis is 1.12.
+\end{enumerate}
+
+**Relative Risk: **
+
+The relative risk of dying for a stage II patient of age 50 as compared to a stage I patient of the same age is $e^{-7.38+0.11\times 50} = 0.153$
+
+
+
+## Code
+```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
+```
+
