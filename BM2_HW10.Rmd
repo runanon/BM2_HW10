@@ -37,11 +37,11 @@ The test result shows that the p-value is 0.3 which is greater than 0.05, so we 
 
 Consider the kidtran dataset in the KMsurv package where the death times of kidney transplant patients are reported. The patients can be classified by race (1=white and 2=black) and gender (1=male and 2=female) into one of four groups. Compare the survival curves for different races in each sex group.
 
+\newpage
+
 ```{r}
 data(kidtran)
 ```
-
-\newpage
 
 ***(1) For male group:***
 
@@ -88,7 +88,7 @@ Z2 = 1 if the patient is in stage III, 0 otherwise\
 Z3 = 1 if the patient is in stage IV, 0 otherwise\
 Z4 = age of the patient (in years):\
 Fit a proportional hazards model using the covariates Z1, Z2, Z3, Z4 and the interaction term Z1 * Z4. Explain your results. What is the relative risk of dying for a stage II parient of age 50 as compared to a stage I patient of the same age?
-
+\
 ```{r}
 data(larynx)
 data2 = larynx %>%
@@ -108,10 +108,10 @@ $$
 **Interpretations:**
 
 \begin{enumerate}
-\item[1] The hazard ratio for subjects of age k in Stage II versus subjects in Stage I is $e^{-7.38+0.11\times k}$ holing age asconstant.
-\item[2] The hazard ratio for subjects in Stage III versus subjects in Stage I is 1.86, keeping age at diagnosis constant.
-\item[3] The hazard ratio for subjects in Stage IV versus subjects in Stage I is 5.77, keeping age at diagnosis constant.
-\item[3] When the patients are not in stage II, the hazard ratio for one-year increase in age at diagnosis is 1.0059908, for patients in the same stage; if the patients are in stage II, the hazard ratio for one-year increase in age at diagnosis is 1.12.
+\item The hazard ratio for subjects of age k in Stage II versus subjects in Stage I is $e^{-7.38+0.11\times k}$ holing age asconstant.
+\item The hazard ratio for subjects in Stage III versus subjects in Stage I is 1.86, keeping age at diagnosis constant.
+\item The hazard ratio for subjects in Stage IV versus subjects in Stage I is 5.77, keeping age at diagnosis constant.
+\item When the patients are not in stage II, the hazard ratio for one-year increase in age at diagnosis is 1.0059908, for patients in the same stage; if the patients are in stage II, the hazard ratio for one-year increase in age at diagnosis is 1.12.
 \end{enumerate}
 
 **Relative Risk: **
@@ -119,6 +119,8 @@ $$
 The relative risk of dying for a stage II patient of age 50 as compared to a stage I patient of the same age is $e^{-7.38+0.11\times 50} = 0.153$
 
 
+$$
+$$
 
 ## Code
 ```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
